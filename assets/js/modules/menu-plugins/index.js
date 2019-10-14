@@ -282,13 +282,12 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
   
     //lien: https://jsbin.com/zelepix/edit?html,js,console,output
 
-    // 1) Id de chaque pédale invoqué: mettre num instanciationn
-    // 2) Suppresion et déplacement pédale: faire un mini div en dessous de chaque pédale, 3 boutons: delete, gauche et droite.
-    // 3) Faire précédent dans le menu des choix des plugins
-    // 4) Gérer exception de l'affichage ou non du addplugin en fonction des deletes ou non
-    // 5) Invoquer ampli en fonction du choix utilisateur
+    // 1) Suppresion et déplacement pédale: faire un mini div en dessous de chaque pédale, 3 boutons: delete, gauche et droite.
+    // 2) Faire précédent dans le menu des choix des plugins
+    // 3) Gérer exception de l'affichage ou non du addplugin en fonction des deletes ou non
+    // 4) Invoquer ampli en fonction du choix utilisateur
     // etape bonus: nettoyer le code et réécrire au propre
-    // 6) Si toute étape précédente finie, faire la connexionn de chaque plugin
+    // 5) Si toute étape précédente finie, faire la connexionn de chaque plugin
 
     
     /*      CHARGEMENT DU REPO DE PLUGINS A L'ININTIALISATION DE LA PAGE    */
@@ -490,11 +489,11 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         
         let deleteButton =document.createElement("button");
         deleteButton.className = "deleteButton";
-        deleteButton.id="delete_" +elem.localName+this.instanciation;
+        deleteButton.id="delete_" +elem.localName+ "_" +this.instanciation;
         deleteButton.innerText="X";
         deleteButton.style.transformOrigin="bottom center"
 
-        mainDiv.id=elem.localName;
+        mainDiv.id=elem.localName+ "_" +this.instanciation;
         mainDiv.className="invokedPlugin";
 
         this.pluginsList.append(mainDiv);
@@ -503,7 +502,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         elem.style.position="absolute";
         elem.style.transformOrigin="left top";
 
-        this.deleteButton= this.root.querySelector("#delete_"+elem.localName+this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
+        this.deleteButton= this.root.querySelector("#delete_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
        
         let w = elem.offsetWidth;
         let h = elem.offsetHeight;
