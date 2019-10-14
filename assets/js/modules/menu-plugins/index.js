@@ -48,13 +48,15 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         }
 
         .deleteButton{
-            font-size: 30px;
-            position: fixed;
+            font-size: 20px;
+            position: absolute;
+            left:80px;
+            top:6px;
             background: rgb(230,70,0);
             color: white;
-            border-radius: 40px;
-            width: 40px;
-            height: 40px;
+            border-radius: 30px;
+            width: 30px;
+            height: 30px;
         }
 
         #div_menu{
@@ -145,9 +147,18 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             margin-left: 30px;
         }
 
+        .optionMenu{
+            position: absolute;
+            top:450px;
+            width: 200px;
+            height: 50px;
+            border: 3px solid white;
+            border-radius:10px;
+        }
+
         .invokedPlugin{
             width: 200px;
-            height:200px;
+            height: 273px;
             margin: 10px;
         }
 
@@ -162,50 +173,6 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             color:black;
             background-color:white;
         }
-
-
-
-        #ul_menu_plugins{
-            list-style:none;
-            display:flex;
-            flex-direction:column;
-            width:200px;
-        }
-        #ul_menu_plugins li{
-            position:relative;
-            top:0px;
-        }
-
-        #ul_menu_plugins li:hover ul{
-            display:flex;
-        }
-        #ul_menu_plugins li ul{
-            display:none;
-
-            list-style:none;
-            flex-direction:column;
-            width:200px;
-            position:absolute;
-            top:0px;
-            left:199px;
-        }
-
-        #ul_menu_plugins li:hover,
-        #ul_menu_plugins li ul li:hover{
-            background:dodgerblue;
-            color:#fff;
-        }
-        #ul_menu_plugins li,
-        #ul_menu_plugins li ul li{
-            background:#fff;
-            color:#333;
-
-            font-size:14px;
-            padding:10px;
-
-            text-transform:capitalize;
-            cursor:pointer;
-        }
         `;
         this.html = `
         <div id='div_menu'>
@@ -218,7 +185,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
                 <div id="addPlugin">+</div>
             </ul>
         </div>
-        <ul id='ul_menu_plugins'></ul>`;
+        `;
         this.root.innerHTML = `<style>${this.css}</style><div id='wrapper'>${this.html}</div>`;
 
         //Audio context
@@ -234,7 +201,6 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         this.pluginsList = this.shadowRoot.querySelector(`#pluginsList`);
         this.addPlugin = this.shadowRoot.querySelector("#addPlugin");
         this.ampSimsList = this.shadowRoot.querySelector(`#ampSimsList`);
-        this.ul_menu_plugins = this.shadowRoot.querySelector(`#ul_menu_plugins`);
 
         this.familyChoosen=[];
         this.deleteButton;
@@ -400,12 +366,25 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     //Supprimer un plugin chargé
     deletePlugin(e){
-        e.currentTarget.parentNode.remove();
+        e.currentTarget.parentNode.parentNode.remove();
+        if(this.limitPlugin>=5){
+            let addElement = document.createElement("div");
+            addElement.id = "addPlugin";
+            addElement.innerText= "+";
+            this.pluginsList.append(addElement);
+            this.addPlugin = this.shadowRoot.querySelector("#addPlugin");
+            this.addPlugin.addEventListener("click", (e) =>this.chooseFamily(e));
+        }
         this.limitPlugin--;
     }
 
-    //Modifier ordre du plugin
-    movePlugin(e){
+    //Déplacer plugin à gauche
+    movePluginToLeft(e){
+
+    }
+
+    //Déplacer plugin à droite
+    movePluginToRight(e){
 
     }
 
@@ -484,21 +463,26 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
       }
 
       addDivWithPlugin(elem) {
+
         this.root.querySelector("#Plugin2").remove();
         let mainDiv= document.createElement("div");
+
+        let optionPlugin = document.createElement("div");
+        optionPlugin.id ="optionMenu_" +elem.localName+this.instanciation;
+        optionPlugin.className="optionMenu";
         
         let deleteButton =document.createElement("button");
         deleteButton.className = "deleteButton";
         deleteButton.id="delete_" +elem.localName+ "_" +this.instanciation;
         deleteButton.innerText="X";
-        deleteButton.style.transformOrigin="bottom center"
 
         mainDiv.id=elem.localName+ "_" +this.instanciation;
         mainDiv.className="invokedPlugin";
 
         this.pluginsList.append(mainDiv);
         mainDiv.append(elem);
-        mainDiv.append(deleteButton);
+        mainDiv.append(optionPlugin);
+        optionPlugin.append(deleteButton);
         elem.style.position="absolute";
         elem.style.transformOrigin="left top";
 
