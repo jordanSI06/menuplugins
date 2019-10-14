@@ -329,9 +329,8 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     //lien: https://jsbin.com/zelepix/edit?html,js,console,output
 
-    // 1) Suppresion et déplacement pédale: faire un mini div en dessous de chaque pédale, 3 boutons: delete, gauche et droite.
+    // 1) Gérer déplacemennt pédale
     // 2) Faire précédent dans le menu des choix des plugins
-    // etape bonus: nettoyer le code et réécrire au propre
     // 3) Si toute étape précédente finie, faire la connexionn de chaque plugin
     // 4) Faire du rack une wap
 
