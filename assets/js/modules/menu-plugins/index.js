@@ -2,13 +2,13 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     constructor() {
         super();
-        this.parent=this;
+        this.parent = this;
         this.root = this.attachShadow({ mode: `open` });
         this.params = {
             url: (this.getAttribute(`url`) || `urlTest`)
         };
-        this.data={};
-        this._pluginsJSON=this.loadJSONPlugins();
+        this.data = {};
+        this._pluginsJSON = this.loadJSONPlugins();
     }
 
     static get observedAttributes() { return ['url']; }
@@ -137,6 +137,18 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             border:3px dashed lightgreen;
         }
 
+        #addAmp{
+            font-size: 100px;
+            width: 300px;
+            height: 140px;
+            border: 3px dashed white;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            line-height: 120px;
+            margin-left: 30px;
+        }
+
         #addPlugin{
             font-size:100px;
             width:150px;
@@ -148,6 +160,18 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             line-height: 160px;
             margin-left: 30px;
         }
+
+        #Amp{
+            font-size:40px;
+            width:300px;
+            height:140px;
+            border: 3px solid white;
+            border-radius: 10px;
+            color:white;
+            text-align: center;
+            margin-left: 30px;
+        }
+
 
         #Plugin, #Plugin2{
             font-size:40px;
@@ -202,7 +226,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         <div id='div_menu'>
             <h1 id="titleSection">AmpSimulator</h1>
             <ul id='ampSimsList'>
-                <select id="choiceAmp"></select>
+                <div id="addAmp">+</div>
             </ul>
             <h1 id="titleSection">Plugins</h1>
             <ul id='pluginsList'>
@@ -213,32 +237,42 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         this.root.innerHTML = `<style>${this.css}</style><div id='wrapper'>${this.html}</div>`;
 
         //Audio context
-        this.ctx= new AudioContext();
+        this.ctx = new AudioContext();
 
         //Création des éléments au chargement du site
         this.categoryPlugins;
-        this._pluginsJSON.then(d=>this.buildMenuPlugins(d));
-        
-        this.choiceAmp = this.shadowRoot.querySelector('#choiceAmp');
+        this.ampList;
+
+        this._pluginsJSON.then(d => this.buildMenuPlugins(d));
+
         this.choiceCategoryPlugin = this.shadowRoot.querySelector("#choiceCategoryPlugin")
         this.div_menu = this.shadowRoot.querySelector(`#div_menu`);
         this.pluginsList = this.shadowRoot.querySelector(`#pluginsList`);
+        this.addAmp = this.shadowRoot.querySelector("#addAmp");
         this.addPlugin = this.shadowRoot.querySelector("#addPlugin");
         this.ampSimsList = this.shadowRoot.querySelector(`#ampSimsList`);
 
-        this.familyChoosen=[];
+        this.familyChoosen = [];
+        this.ampChoosen = [];
+
         this.deleteButton;
+        this.leftButton;
+        this.rightButton;
+
         this.choiceFamily;
+        this.choiceAmp;
         this.pluginListJson;
 
-        this.limitPlugin=0;
-        this.instanciation =0;
-       
+        this.limitPlugin = 0;
+        this.instanciation = 0;
 
+        this.addAmp.addEventListener("click", (e) => this.chooseAmp(e));
         this.addPlugin.addEventListener("click", (e) => this.chooseFamily(e));
+
 
         //Chargement des plugins depuis le repo et classement par famille
         const _pathJSON = `https://mainline.i3s.unice.fr/WebAudioPluginBank/repository.json`;
+        let _amp = []
         let _pluginsCategory = [];
         let _index, _count;
         _index = _count = 0;
@@ -252,11 +286,10 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
                         _pluginsCategory.push(_p.category);
                         option.text = _p.category;
                     }
-                    if (_p.category == "AmpSim"){
-                        this.ampSimsList.insertAdjacentElement(`beforeEnd`, this.createItem(_count, _d, _p, p));
-                        option.text=_p.name;
-                        this.choiceAmp.add(option);
-                    } 
+                    if (_p.category == "AmpSim") {
+                        //this.ampSimsList.insertAdjacentElement(`beforeEnd`, this.createItem(_count, _d, _p, p));
+                        _amp.push(_p.name);
+                    }
                     else {
                         _p.url = _d.plugs[p];
                         //this.pluginsList.insertAdjacentElement(`beforeEnd`, this.createItem(_count, _d, _p, p));
@@ -265,11 +298,16 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
                 //if (_index == Object.keys(_d.plugs).length - 1) 
                 _index++;
             }
-            this.categoryPlugins= _pluginsCategory;
+            this.categoryPlugins = _pluginsCategory;
+            this.ampList = _amp;
         })
-        
+
+
+
+
+
     }
-  
+
     //lien: https://jsbin.com/zelepix/edit?html,js,console,output
 
     // 1) Suppresion et déplacement pédale: faire un mini div en dessous de chaque pédale, 3 boutons: delete, gauche et droite.
@@ -279,7 +317,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
     // etape bonus: nettoyer le code et réécrire au propre
     // 5) Si toute étape précédente finie, faire la connexionn de chaque plugin
 
-    
+
     /*      CHARGEMENT DU REPO DE PLUGINS A L'ININTIALISATION DE LA PAGE    */
     //Chargement des scripts des plugins
     loadJSONPlugins() {
@@ -325,7 +363,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         });
     }
 
-    buildMenuPlugins(_pluginsJSON){
+    buildMenuPlugins(_pluginsJSON) {
         for (const p in _pluginsJSON) {
             console.log(_pluginsJSON[p]);
         }
@@ -339,179 +377,236 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     /*      GESTION DU MENU DU CHOIX DE PLUGIN ET DE LA CREATION DU PLUGIN   */
 
+    //Après avoir choisi l'ampli dans la liste de selection, charge l'ampli
+    chooseAmp(e) {
+        e.currentTarget.remove();
+        let amp = document.createElement("div");
+        amp.id = "Amp";
+        this.ampSimsList.append(amp);
+        for (let i = 0; i < this.ampList.length; i++) {
+            let ampListChoose = document.createElement("div");
+            ampListChoose.className = "ampListChoose";
+            ampListChoose.id = this.ampList[i];
+            ampListChoose.innerText = this.ampList[i];
+            amp.append(ampListChoose);
+            
+            this.choiceAmp = this.shadowRoot.querySelectorAll(".ampListChoose");
+            this.choiceAmp[i].addEventListener("click", (e) => this.loadAmp(e));
+        }
+    }
+
     //Après avoir cliqué sur '+', affiche la liste de famille de plugins
-    chooseFamily(e){
+    chooseFamily(e) {
         e.currentTarget.remove();
         let plugin = document.createElement("div");
-        plugin.id="Plugin";
+        plugin.id = "Plugin";
         this.pluginsList.append(plugin);
-        for(let i = 0; i< this.categoryPlugins.length; i++){
+        for (let i = 0; i < this.categoryPlugins.length; i++) {
             let family = document.createElement("div");
-            family.className= "family";
-            family.id=this.categoryPlugins[i];
-            family.innerText=this.categoryPlugins[i];
+            family.className = "family";
+            family.id = this.categoryPlugins[i];
+            family.innerText = this.categoryPlugins[i];
             plugin.append(family);
-            this.choiceFamily= this.shadowRoot.querySelectorAll(".family");
+            this.choiceFamily = this.shadowRoot.querySelectorAll(".family");
             this.choiceFamily[i].addEventListener("click", (e) => this.choosePlugin(e));
         }
     }
 
     //Après avoir choisi la famille, affiche la liste de plugin faisant partie de la famille
-    choosePlugin(e){
+    choosePlugin(e) {
         e.currentTarget.parentNode.remove();
         let plugin2 = document.createElement("div");
-        plugin2.id="Plugin2";
+        plugin2.id = "Plugin2";
         this.pluginsList.append(plugin2);
-        for (let i = 0; i< this.pluginListJson.length; i++){
-            if(e.currentTarget.innerText == this.pluginListJson[i].category){
+        for (let i = 0; i < this.pluginListJson.length; i++) {
+            if (e.currentTarget.innerText == this.pluginListJson[i].category) {
                 this.familyChoosen.push(this.pluginListJson[i]);
                 let family = document.createElement("div");
-                family.className= "family";
-                family.id=this.pluginListJson[i].name;
-                family.innerText=this.pluginListJson[i].name;
+                family.className = "family";
+                family.id = this.pluginListJson[i].name;
+                family.innerText = this.pluginListJson[i].name;
                 plugin2.append(family);
             }
         }
-        this.choiceFamily= this.shadowRoot.querySelectorAll(".family");
-        for(let j = 0; j<this.choiceFamily.length; j++){
+        this.choiceFamily = this.shadowRoot.querySelectorAll(".family");
+        for (let j = 0; j < this.choiceFamily.length; j++) {
             this.choiceFamily[j].addEventListener("click", (e) => this.loadPlugin(e));
         }
     }
 
+    loadAmp(e) {
+        for (let i = 0; i < this.pluginListJson.length; i++) {
+            if (e.currentTarget.innerText == this.pluginListJson[i].name) {
+                let className = this.pluginListJson[i].vendor + this.pluginListJson[i].name;
+                this.loadPluginFromWasabi(className, this.pluginListJson[i].url, this.pluginListJson[i].category);
+            }
+        }
+    }
     //Après avoir choisi le plugin, charge le plugin demandé auprès du repo  
-    loadPlugin(e){
-        for(let i=0; i<this.familyChoosen.length; i++){
-            if(e.currentTarget.innerText == this.familyChoosen[i].name){
-                let className= this.familyChoosen[i].vendor + this.familyChoosen[i].name;
-                this.loadPluginFromWasabi(className, this.familyChoosen[i].url);
+    loadPlugin(e) {
+        for (let i = 0; i < this.familyChoosen.length; i++) {
+            if (e.currentTarget.innerText == this.familyChoosen[i].name) {
+                let className = this.familyChoosen[i].vendor + this.familyChoosen[i].name;
+                this.loadPluginFromWasabi(className, this.familyChoosen[i].url, this.pluginListJson[i].category);
             }
         }
     }
 
     //Supprimer un plugin chargé
-    deletePlugin(e){
+    deletePlugin(e) {
         e.currentTarget.parentNode.parentNode.remove();
-        if(this.limitPlugin>=5){
+        if (this.limitPlugin >= 5) {
             let addElement = document.createElement("div");
             addElement.id = "addPlugin";
-            addElement.innerText= "+";
+            addElement.innerText = "+";
             this.pluginsList.append(addElement);
             this.addPlugin = this.shadowRoot.querySelector("#addPlugin");
-            this.addPlugin.addEventListener("click", (e) =>this.chooseFamily(e));
+            this.addPlugin.addEventListener("click", (e) => this.chooseFamily(e));
         }
         this.limitPlugin--;
     }
 
     //Déplacer plugin à gauche
-    movePluginToLeft(e){
-        alert("test gauche" +e.currentTarget.textContent);
+    movePluginToLeft(e) {
+        alert("test gauche" + e.currentTarget.textContent);
     }
 
     //Déplacer plugin à droite
-    movePluginToRight(e){
-        alert("test droite"+e.currentTarget.textContent);
+    movePluginToRight(e) {
+        alert("test droite" + e.currentTarget.textContent);
     }
 
     //Affiche la case '+' pour pouvoir ajouter un plugin, sauf si la limite de plugin est atteinte
-    addPluginElement(){
-        if(this.limitPlugin < 5){
+    addPluginElement() {
+        if (this.limitPlugin < 5) {
             let addElement = document.createElement("div");
             addElement.id = "addPlugin";
-            addElement.innerText= "+";
+            addElement.innerText = "+";
             this.pluginsList.append(addElement);
             this.addPlugin = this.shadowRoot.querySelector("#addPlugin");
-            this.addPlugin.addEventListener("click", (e) =>this.chooseFamily(e)); 
+            this.addPlugin.addEventListener("click", (e) => this.chooseFamily(e));
             this.limitPlugin++;
         }
-        if(this.limitPlugin == 5){
-            this.addPlugin.id="hidden";
-            this.addPlugin.innerText="";
+        if (this.limitPlugin == 5) {
+            this.addPlugin.id = "hidden";
+            this.addPlugin.innerText = "";
         }
     }
 
     //Requete et chargement du plugin auprès du repo
-    loadPluginFromWasabi(className, baseURL) {
+    loadPluginFromWasabi(className, baseURL, category) {
         let scriptURL = baseURL + "/main.js";
-    
+
         if (this.scriptExists(scriptURL)) {
-          //script exists
-          console.log("SCRIPT EXISTS WE JUST INSTANCIATE THE PLUGIN");
-          this.buildPlugin(className, baseURL);
-          return;
+            //script exists
+            console.log("SCRIPT EXISTS WE JUST INSTANCIATE THE PLUGIN");
+            this.buildPlugin(className, baseURL, category);
+            return;
         }
-    
+
         console.log("SCRIPT DOES NOT EXIST, ADD A SCRIPT SRC=, THEN INSTANCIATE PLUGIN")
-    
+
         // if we are here this means that the script is not present. Add it to the document
         let script = document.createElement("script");
         script.src = scriptURL;
-        
-        let parent= this;
+
+        let parent = this;
         script.onload = function () {
-          // Once the script has been loaded instanciate the plugin
-          parent.buildPlugin(className, baseURL);
+            // Once the script has been loaded instanciate the plugin
+            parent.buildPlugin(className, baseURL, category);
         }
-    
+
         // will be executed before the onload above...
         document.head.appendChild(script);
-      }
+    }
 
-      scriptExists(url) {
+    scriptExists(url) {
         return document.querySelectorAll(`script[src="${url}"]`).length > 0;
-      }
+    }
 
-      buildPlugin(className, baseURL) {
+    buildPlugin(className, baseURL, category) {
 
         var plugin = new window[className](this.ctx, baseURL);
         console.log(plugin);
         let parent = this;
-    
+
         plugin.load().then((node) => {
-          // loads and initialize the audio processor part
-          // Then use the factory to create the HTML custom elem that holds the GUI
-          // The loadGUI method takes care of inserting the link rel=import part,
-          // not doing it twice, and associate the node with its GUI.
+            // loads and initialize the audio processor part
+            // Then use the factory to create the HTML custom elem that holds the GUI
+            // The loadGUI method takes care of inserting the link rel=import part,
+            // not doing it twice, and associate the node with its GUI.
             plugin.loadGui().then((elem) => {
-              console.log("ADDING PLUGIN");
-              // show the GUI of the plugn, the audio part is ready to be used
-              parent.addDivWithPlugin(elem);
-              //mediaSource.connect(node);
-              //node.connect(ctx.destination);
-              // Add node to the chain of plugins
+                console.log("ADDING PLUGIN");
+                // show the GUI of the plugn, the audio part is ready to be used
+                if(category != "AmpSim"){
+                    parent.addDivWithPlugin(elem);
+                }else{
+                    parent.addDivWithAmp(elem);
+                }
+                
+                //mediaSource.connect(node);
+                //node.connect(ctx.destination);
+                // Add node to the chain of plugins
             });
-         
-          //document.body.querySelector("#plugins").insertAdjacentHTML('afterbegin', '<h2>' + `${className}` + '</h2>')
+
+            //document.body.querySelector("#plugins").insertAdjacentHTML('afterbegin', '<h2>' + `${className}` + '</h2>')
 
         });
-    
-      }
 
-      addDivWithPlugin(elem) {
+    }
+
+    addDivWithAmp(elem){
+        this.root.querySelector("#Amp").remove();
+        let mainDiv = document.createElement("div");
+        mainDiv.id = elem.localName + "_" + this.instanciation;
+        mainDiv.className = "invokedAmp";
+
+        let optionAmp = document.createElement("div");
+        optionAmp.id = "optionMenu_" + elem.localName + this.instanciation;
+        optionAmp.className = "optionMenu";
+
+        let deleteButton = document.createElement("button");
+        deleteButton.className = "deleteButton";
+        deleteButton.id = "delete_" + elem.localName + "_" + this.instanciation;
+        deleteButton.innerText = "X";
+
+        this.ampSimsList.append(mainDiv);
+        mainDiv.append(elem);
+        mainDiv.append(optionAmp);
+        optionAmp.append(deleteButton);
+
+        elem.style.position = "absolute";
+        elem.style.transformOrigin = "left top";
+
+        this.deleteButton = this.root.querySelector("#delete_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
+    }
+
+    addDivWithPlugin(elem) {
 
         this.root.querySelector("#Plugin2").remove();
-        let mainDiv= document.createElement("div");
-        mainDiv.id=elem.localName+ "_" +this.instanciation;
-        mainDiv.className="invokedPlugin";
+        let mainDiv = document.createElement("div");
+        mainDiv.id = elem.localName + "_" + this.instanciation;
+        mainDiv.className = "invokedPlugin";
 
         let optionPlugin = document.createElement("div");
-        optionPlugin.id ="optionMenu_" +elem.localName+this.instanciation;
-        optionPlugin.className="optionMenu";
-        
-        let deleteButton =document.createElement("button");
+        optionPlugin.id = "optionMenu_" + elem.localName + this.instanciation;
+        optionPlugin.className = "optionMenu";
+
+        let deleteButton = document.createElement("button");
         deleteButton.className = "deleteButton";
-        deleteButton.id="delete_" +elem.localName+ "_" +this.instanciation;
-        deleteButton.innerText="X";
+        deleteButton.id = "delete_" + elem.localName + "_" + this.instanciation;
+        deleteButton.innerText = "X";
 
-        let leftButton =document.createElement("button");
+        let leftButton = document.createElement("button");
         leftButton.className = "leftButton";
-        leftButton.id="left_" +elem.localName+ "_" +this.instanciation;
-        leftButton.innerText="<";
+        leftButton.id = "left_" + elem.localName + "_" + this.instanciation;
+        leftButton.innerText = "<";
 
-        let rightButton =document.createElement("button");
+        let rightButton = document.createElement("button");
         rightButton.className = "rightButton";
-        rightButton.id="right_" +elem.localName+ "_" +this.instanciation;
-        rightButton.innerText=">";
-        
+        rightButton.id = "right_" + elem.localName + "_" + this.instanciation;
+        rightButton.innerText = ">";
+
 
         this.pluginsList.append(mainDiv);
         mainDiv.append(elem);
@@ -519,32 +614,32 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         optionPlugin.append(deleteButton);
         optionPlugin.append(leftButton);
         optionPlugin.append(rightButton);
-        elem.style.position="absolute";
-        elem.style.transformOrigin="left top";
+        elem.style.position = "absolute";
+        elem.style.transformOrigin = "left top";
 
-        this.deleteButton= this.root.querySelector("#delete_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
-        this.leftButton= this.root.querySelector("#left_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToLeft(e));
-        this.rightButton= this.root.querySelector("#right_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToRight(e));
+        this.deleteButton = this.root.querySelector("#delete_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
+        this.leftButton = this.root.querySelector("#left_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToLeft(e));
+        this.rightButton = this.root.querySelector("#right_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToRight(e));
 
-       
+
         let w = elem.offsetWidth;
         let h = elem.offsetHeight;
         let scale = 1;
-        if(w > h) {
+        if (w > h) {
             console.log("w > h on contraint la largeur")
             console.log("largeur : " + w + " on veut contraindre à 150px")
-     
-            scale = 150/w;
-        }else {
+
+            scale = 150 / w;
+        } else {
             console.log("h > w on contraint la hauteur")
             console.log("hauteur : " + h + " on veut contraindre à 200px")
-            scale = 200/h;
+            scale = 200 / h;
         }
-       console.log("scale = " + scale)
-       elem.style.transform = "scale("+scale+"," +scale + ")";
-       this.addPluginElement();
-       this.instanciation++;
-     }
+        console.log("scale = " + scale)
+        elem.style.transform = "scale(" + scale + "," + scale + ")";
+        this.addPluginElement();
+        this.instanciation++;
+    }
 
     /*createItemLI(_name) {
         let _li = document.createElement(`li`);
