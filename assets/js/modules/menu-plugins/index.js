@@ -59,6 +59,30 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             height: 30px;
         }
 
+        .leftButton{
+            font-size: 20px;
+            position: absolute;
+            left:30px;
+            top:6px;
+            background: rgb(220,220,220);
+            color: black;
+            border-radius: 30px;
+            width: 30px;
+            height: 30px;
+        }
+
+        .rightButton{
+            font-size: 20px;
+            position: absolute;
+            left:130px;
+            top:6px;
+            background: rgb(220,220,220);
+            color: black;
+            border-radius: 30px;
+            width: 30px;
+            height: 30px;
+        }
+
         #div_menu{
             background: #333;
             box-shadow:0px 3px 4px #111;
@@ -380,12 +404,12 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     //Déplacer plugin à gauche
     movePluginToLeft(e){
-
+        alert("test gauche" +e.currentTarget.textContent);
     }
 
     //Déplacer plugin à droite
     movePluginToRight(e){
-
+        alert("test droite"+e.currentTarget.textContent);
     }
 
     //Affiche la case '+' pour pouvoir ajouter un plugin, sauf si la limite de plugin est atteinte
@@ -466,6 +490,8 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
         this.root.querySelector("#Plugin2").remove();
         let mainDiv= document.createElement("div");
+        mainDiv.id=elem.localName+ "_" +this.instanciation;
+        mainDiv.className="invokedPlugin";
 
         let optionPlugin = document.createElement("div");
         optionPlugin.id ="optionMenu_" +elem.localName+this.instanciation;
@@ -476,17 +502,30 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         deleteButton.id="delete_" +elem.localName+ "_" +this.instanciation;
         deleteButton.innerText="X";
 
-        mainDiv.id=elem.localName+ "_" +this.instanciation;
-        mainDiv.className="invokedPlugin";
+        let leftButton =document.createElement("button");
+        leftButton.className = "leftButton";
+        leftButton.id="left_" +elem.localName+ "_" +this.instanciation;
+        leftButton.innerText="<";
+
+        let rightButton =document.createElement("button");
+        rightButton.className = "rightButton";
+        rightButton.id="right_" +elem.localName+ "_" +this.instanciation;
+        rightButton.innerText=">";
+        
 
         this.pluginsList.append(mainDiv);
         mainDiv.append(elem);
         mainDiv.append(optionPlugin);
         optionPlugin.append(deleteButton);
+        optionPlugin.append(leftButton);
+        optionPlugin.append(rightButton);
         elem.style.position="absolute";
         elem.style.transformOrigin="left top";
 
         this.deleteButton= this.root.querySelector("#delete_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
+        this.leftButton= this.root.querySelector("#left_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToLeft(e));
+        this.rightButton= this.root.querySelector("#right_"+elem.localName+ "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToRight(e));
+
        
         let w = elem.offsetWidth;
         let h = elem.offsetHeight;
