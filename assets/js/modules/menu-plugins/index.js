@@ -47,10 +47,22 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             display: none;
         }
 
+        .deleteButtonAmp{
+            font-size: 20px;
+            position: absolute;
+            left:190px;
+            top:6px;
+            background: rgb(230,70,0);
+            color: white;
+            border-radius: 30px;
+            width: 30px;
+            height: 30px;
+        }
+
         .deleteButton{
             font-size: 20px;
             position: absolute;
-            left:80px;
+            left:120px;
             top:6px;
             background: rgb(230,70,0);
             color: white;
@@ -100,11 +112,9 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             overflow:scroll;
         }
         #ampSimsList{
-            height:140px;
+            height:230px;
         }
-        #ampSimsList li img{
-            height:140px;
-        }
+        
         #pluginsList{
             height:500px;
             flex-wrap:wrap;
@@ -193,6 +203,15 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             color:white;
             text-align: center;
             margin-left: 30px;
+        }
+
+        .optionMenuAmp{
+            position: absolute;
+            top: 200px;
+            width: 450px;
+            height: 50px;
+            border: 3px solid white;
+            border-radius: 10px;
         }
 
         .optionMenu{
@@ -389,7 +408,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             ampListChoose.id = this.ampList[i];
             ampListChoose.innerText = this.ampList[i];
             amp.append(ampListChoose);
-            
+
             this.choiceAmp = this.shadowRoot.querySelectorAll(".ampListChoose");
             this.choiceAmp[i].addEventListener("click", (e) => this.loadAmp(e));
         }
@@ -450,6 +469,16 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
                 this.loadPluginFromWasabi(className, this.familyChoosen[i].url, this.pluginListJson[i].category);
             }
         }
+    }
+
+    deleteAmp(e){
+        e.currentTarget.parentNode.parentNode.remove();
+        let addAmp = document.createElement("div");
+        addAmp.id = "addAmp";
+        addAmp.innerText="+";
+        this.ampSimsList.append(addAmp);
+        this.addAmp = this.shadowRoot.querySelector("#addAmp");
+        this.addAmp.addEventListener("click", (e) => this.chooseAmp(e));
     }
 
     //Supprimer un plugin chargé
@@ -538,12 +567,12 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             plugin.loadGui().then((elem) => {
                 console.log("ADDING PLUGIN");
                 // show the GUI of the plugn, the audio part is ready to be used
-                if(category != "AmpSim"){
+                if (category != "AmpSim") {
                     parent.addDivWithPlugin(elem);
-                }else{
+                } else {
                     parent.addDivWithAmp(elem);
                 }
-                
+
                 //mediaSource.connect(node);
                 //node.connect(ctx.destination);
                 // Add node to the chain of plugins
@@ -555,18 +584,18 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     }
 
-    addDivWithAmp(elem){
+    addDivWithAmp(elem) {
         this.root.querySelector("#Amp").remove();
         let mainDiv = document.createElement("div");
         mainDiv.id = elem.localName + "_" + this.instanciation;
         mainDiv.className = "invokedAmp";
 
         let optionAmp = document.createElement("div");
-        optionAmp.id = "optionMenu_" + elem.localName + this.instanciation;
-        optionAmp.className = "optionMenu";
+        optionAmp.id = "optionMenuAmp_" + elem.localName + this.instanciation;
+        optionAmp.className = "optionMenuAmp";
 
         let deleteButton = document.createElement("button");
-        deleteButton.className = "deleteButton";
+        deleteButton.className = "deleteButtonAmp";
         deleteButton.id = "delete_" + elem.localName + "_" + this.instanciation;
         deleteButton.innerText = "X";
 
@@ -578,7 +607,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         elem.style.position = "absolute";
         elem.style.transformOrigin = "left top";
 
-        this.deleteButton = this.root.querySelector("#delete_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
+        this.deleteButton = this.root.querySelector("#delete_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.deleteAmp(e));
     }
 
     addDivWithPlugin(elem) {
