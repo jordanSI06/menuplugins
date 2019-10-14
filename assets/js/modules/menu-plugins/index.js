@@ -62,7 +62,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         .deleteButton{
             font-size: 20px;
             position: absolute;
-            left:120px;
+            left:80px;
             top:6px;
             background: rgb(230,70,0);
             color: white;
@@ -216,7 +216,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
         .optionMenu{
             position: absolute;
-            top:450px;
+            top:550px;
             width: 200px;
             height: 50px;
             border: 3px solid white;
@@ -331,10 +331,9 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     // 1) Suppresion et déplacement pédale: faire un mini div en dessous de chaque pédale, 3 boutons: delete, gauche et droite.
     // 2) Faire précédent dans le menu des choix des plugins
-    // 3) Gérer exception de l'affichage ou non du addplugin en fonction des deletes ou non
-    // 4) Invoquer ampli en fonction du choix utilisateur
     // etape bonus: nettoyer le code et réécrire au propre
-    // 5) Si toute étape précédente finie, faire la connexionn de chaque plugin
+    // 3) Si toute étape précédente finie, faire la connexionn de chaque plugin
+    // 4) Faire du rack une wap
 
 
     /*      CHARGEMENT DU REPO DE PLUGINS A L'ININTIALISATION DE LA PAGE    */
