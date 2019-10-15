@@ -333,10 +333,11 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     //lien: https://jsbin.com/zelepix/edit?html,js,console,output
 
-    // 1) Gérer déplacemennt pédale
-    // 2) Faire précédent dans le menu des choix des plugins
-    // 3) faire la connexionn de chaque plugin
-    // 4) Faire du rack une wap
+    // 1) Gérer suppresion de l'audioNode dans le tableau et actualiser connexion
+    // 2) Bug visuel du bouton de suppresion de plugin à corriger
+    // 3) Gérer déplacement pédale (gérer le déplacement aussi dans le tableau d'audioNode et actualiser les connexions)
+    // 4) Faire précédent dans le menu des choix des plugins
+    // 5) Faire du rack une wap
 
 
     /*      CHARGEMENT DU REPO DE PLUGINS A L'ININTIALISATION DE LA PAGE    */
