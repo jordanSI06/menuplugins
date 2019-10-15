@@ -275,8 +275,6 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         this.ampChoosen = [];
 
         this.deleteButton;
-        this.leftButton;
-        this.rightButton;
 
         this.choiceFamily;
         this.choiceAmp;
@@ -493,16 +491,6 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         this.limitPlugin--;
     }
 
-    //Déplacer plugin à gauche
-    movePluginToLeft(e) {
-        alert("test gauche" + e.currentTarget.textContent);
-    }
-
-    //Déplacer plugin à droite
-    movePluginToRight(e) {
-        alert("test droite" + e.currentTarget.textContent);
-    }
-
     //Affiche la case '+' pour pouvoir ajouter un plugin, sauf si la limite de plugin est atteinte
     addPluginElement() {
         if (this.limitPlugin < 5) {
@@ -624,31 +612,16 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         deleteButton.id = "delete_" + elem.localName + "_" + this.instanciation;
         deleteButton.innerText = "X";
 
-        let leftButton = document.createElement("button");
-        leftButton.className = "leftButton";
-        leftButton.id = "left_" + elem.localName + "_" + this.instanciation;
-        leftButton.innerText = "<";
-
-        let rightButton = document.createElement("button");
-        rightButton.className = "rightButton";
-        rightButton.id = "right_" + elem.localName + "_" + this.instanciation;
-        rightButton.innerText = ">";
-
 
         this.pluginsList.append(mainDiv);
         mainDiv.append(elem);
         mainDiv.append(optionPlugin);
         optionPlugin.append(deleteButton);
-        optionPlugin.append(leftButton);
-        optionPlugin.append(rightButton);
         elem.style.position = "absolute";
         elem.style.transformOrigin = "left top";
 
         this.deleteButton = this.root.querySelector("#delete_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.deletePlugin(e));
-        this.leftButton = this.root.querySelector("#left_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToLeft(e));
-        this.rightButton = this.root.querySelector("#right_" + elem.localName + "_" + this.instanciation).addEventListener("click", (e) => this.movePluginToRight(e));
-
-
+    
         let w = elem.offsetWidth;
         let h = elem.offsetHeight;
         let scale = 1;
