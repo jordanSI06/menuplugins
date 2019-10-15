@@ -192,6 +192,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             color:white;
             text-align: center;
             margin-left: 30px;
+            overflow: scroll;
         }
 
         #Plugin3{
@@ -243,6 +244,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         `;
         this.html = `
         <div id='div_menu'>
+        <audio src="./assets/audio/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
             <h1 id="titleSection">AmpSimulator</h1>
             <ul id='ampSimsList'>
                 <div id="addAmp">+</div>
@@ -257,6 +259,10 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
         //Audio context
         this.ctx = new AudioContext();
+        this.player= this.shadowRoot.querySelector("#soundSample");
+        this.mediaSource=this.ctx.createMediaElementSource(this.player);
+
+        this.audioPluginConnexion = []; 
 
         //Création des éléments au chargement du site
         this.categoryPlugins;
@@ -329,7 +335,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
     // 1) Gérer déplacemennt pédale
     // 2) Faire précédent dans le menu des choix des plugins
-    // 3) Si toute étape précédente finie, faire la connexionn de chaque plugin
+    // 3) faire la connexionn de chaque plugin
     // 4) Faire du rack une wap
 
 
@@ -546,11 +552,20 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         let parent = this;
 
         plugin.load().then((node) => {
+            let lastConnexion;
             // loads and initialize the audio processor part
             // Then use the factory to create the HTML custom elem that holds the GUI
             // The loadGUI method takes care of inserting the link rel=import part,
             // not doing it twice, and associate the node with its GUI.
             plugin.loadGui().then((elem) => {
+                if(category!="AmpSim"){
+                    this.audioPluginConnexion.push(node);
+                }
+                else{
+                    //L'audioNode de l'ampli est forcément premier s'il est invoqué
+                    this.audioPluginConnexion.unshift(node);
+                }
+                console.log(this.audioPluginConnexion);
                 console.log("ADDING PLUGIN");
                 // show the GUI of the plugn, the audio part is ready to be used
                 if (category != "AmpSim") {
@@ -558,9 +573,19 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
                 } else {
                     parent.addDivWithAmp(elem);
                 }
-
-                //mediaSource.connect(node);
-                //node.connect(ctx.destination);
+                this.mediaSource.connect(this.audioPluginConnexion[0]);
+                if(this.audioPluginConnexion.length>1){
+                    for(let i = 0; i<this.audioPluginConnexion.length-1; i++){
+                        console.warn("1er plug: " , this.audioPluginConnexion[i] )
+                        console.warn("2ème plug:" , this.audioPluginConnexion[i+1])
+                        this.audioPluginConnexion[i].connect(this.audioPluginConnexion[i+1]);
+                        lastConnexion=this.audioPluginConnexion[i+1];
+                    }
+                }else{
+                    lastConnexion=this.audioPluginConnexion[0];
+                }
+                console.log(lastConnexion);
+                lastConnexion.connect(this.ctx.destination);
                 // Add node to the chain of plugins
             });
 
