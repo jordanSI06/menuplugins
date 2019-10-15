@@ -552,20 +552,17 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
         let parent = this;
 
         plugin.load().then((node) => {
-            let lastConnexion;
             // loads and initialize the audio processor part
             // Then use the factory to create the HTML custom elem that holds the GUI
             // The loadGUI method takes care of inserting the link rel=import part,
             // not doing it twice, and associate the node with its GUI.
+            if(category=="AmpSim"){
+                node.type="amp";
+            }else{
+                node.type="plugin";
+            }
+            this.audioConnexion(node);
             plugin.loadGui().then((elem) => {
-                if(category!="AmpSim"){
-                    this.audioPluginConnexion.push(node);
-                }
-                else{
-                    //L'audioNode de l'ampli est forcément premier s'il est invoqué
-                    this.audioPluginConnexion.unshift(node);
-                }
-                console.log(this.audioPluginConnexion);
                 console.log("ADDING PLUGIN");
                 // show the GUI of the plugn, the audio part is ready to be used
                 if (category != "AmpSim") {
@@ -573,26 +570,42 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
                 } else {
                     parent.addDivWithAmp(elem);
                 }
-                this.mediaSource.connect(this.audioPluginConnexion[0]);
-                if(this.audioPluginConnexion.length>1){
-                    for(let i = 0; i<this.audioPluginConnexion.length-1; i++){
-                        console.warn("1er plug: " , this.audioPluginConnexion[i] )
-                        console.warn("2ème plug:" , this.audioPluginConnexion[i+1])
-                        this.audioPluginConnexion[i].connect(this.audioPluginConnexion[i+1]);
-                        lastConnexion=this.audioPluginConnexion[i+1];
-                    }
-                }else{
-                    lastConnexion=this.audioPluginConnexion[0];
-                }
-                console.log(lastConnexion);
-                lastConnexion.connect(this.ctx.destination);
-                // Add node to the chain of plugins
+               
             });
-
-            //document.body.querySelector("#plugins").insertAdjacentHTML('afterbegin', '<h2>' + `${className}` + '</h2>')
-
         });
 
+    }
+
+    audioConnexion(node){
+        let lastConnexion;
+        let lastIndex=this.audioPluginConnexion.length-1;
+        if(node.type!="amp"){
+            if(this.audioPluginConnexion.length>0 && this.audioPluginConnexion[lastIndex].type!="amp"){
+                this.audioPluginConnexion.push(node);
+            }else{
+                this.audioPluginConnexion.splice(lastIndex-2, 0, node);
+            }
+            
+        }
+        else{
+            //L'audioNode de l'ampli est forcément dernier s'il est invoqué
+            this.audioPluginConnexion.push(node);
+        }
+
+        this.mediaSource.connect(this.audioPluginConnexion[0]);
+        if(this.audioPluginConnexion.length>1){
+            for(let i = 0; i<this.audioPluginConnexion.length-1; i++){
+                console.log("plug1: ", this.audioPluginConnexion[i]);
+                console.log("plug2: ", this.audioPluginConnexion[i+1]);
+                this.audioPluginConnexion[i].connect(this.audioPluginConnexion[i+1]);
+                lastConnexion=this.audioPluginConnexion[i+1];
+            }
+        }else if(this.audioPluginConnexion.length==1){
+            lastConnexion=this.audioPluginConnexion[0];
+        }
+        console.log(this.audioPluginConnexion);
+        console.log(lastConnexion);
+        lastConnexion.connect(this.ctx.destination);
     }
 
     addDivWithAmp(elem) {
