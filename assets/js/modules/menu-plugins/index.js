@@ -208,7 +208,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
         .optionMenuAmp{
             position: absolute;
-            top: 200px;
+            top: 250px;
             width: 450px;
             height: 50px;
             border: 3px solid white;
@@ -217,7 +217,7 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
 
         .optionMenu{
             position: absolute;
-            top:550px;
+            top:580px;
             width: 200px;
             height: 50px;
             border: 3px solid white;
@@ -325,16 +325,13 @@ customElements.define(`menu-plugins`, class extends HTMLElement {
             this.ampList = _amp;
         })
 
-
-
-
-
     }
 
     //lien: https://jsbin.com/zelepix/edit?html,js,console,output
 
     // 1) Gérer suppresion de l'audioNode dans le tableau et actualiser connexion
     // 2) Bug visuel du bouton de suppresion de plugin à corriger
+    // 3) Virer tous plugins n'ayant aucun input (DrumMachine, Synthe)
     // 3) Gérer déplacement pédale (gérer le déplacement aussi dans le tableau d'audioNode et actualiser les connexions)
     // 4) Faire précédent dans le menu des choix des plugins
     // 5) Faire du rack une wap
